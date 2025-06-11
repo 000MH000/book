@@ -25,9 +25,8 @@ class _SubmitReviewFormState extends ConsumerState<SubmitReviewForm> {
   }
 
   Future<void> _submitReview() async {
-    final currentUser = ref.read(currentUserProvider);
+    final currentUser = ref.read(authStateChangesProvider).value;
     if (currentUser == null) {
-      if (!mounted) return; // FIX: Check if widget is still in the tree
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('You must be logged in to submit a review.')),
       );
@@ -38,7 +37,7 @@ class _SubmitReviewFormState extends ConsumerState<SubmitReviewForm> {
       setState(() => _isSubmitting = true);
       try {
         final reviewToSubmit = Review(
-          id: '',
+          id: '', // Firestore will generate this
           userId: currentUser.uid,
           userName: currentUser.displayName ?? currentUser.email ?? 'Anonymous User',
           rating: _currentRating,
@@ -54,17 +53,19 @@ class _SubmitReviewFormState extends ConsumerState<SubmitReviewForm> {
         ref.invalidate(bookReviewsProvider(widget.bookId));
         ref.invalidate(bookDetailProvider(widget.bookId));
 
-        if (!mounted) return; // FIX: Check if widget is still in the tree
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Review submitted successfully!')),
-        );
-        _commentController.clear();
-        setState(() => _currentRating = 3.0);
+        if(mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Review submitted successfully!')),
+          );
+          _commentController.clear();
+          setState(() => _currentRating = 3.0);
+        }
       } catch (e) {
-        if (!mounted) return; // FIX: Check if widget is still in the tree
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit review: $e')),
-        );
+        if(mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to submit review: $e')),
+          );
+        }
       } finally {
         if (mounted) {
           setState(() => _isSubmitting = false);
@@ -75,8 +76,7 @@ class _SubmitReviewFormState extends ConsumerState<SubmitReviewForm> {
 
   @override
   Widget build(BuildContext context) {
-    // ... rest of the build method is unchanged
-    final currentUser = ref.watch(currentUserProvider);
+    final currentUser = ref.watch(authStateChangesProvider).value;
 
     if (currentUser == null) {
       return Padding(
@@ -118,8 +118,12 @@ class _SubmitReviewFormState extends ConsumerState<SubmitReviewForm> {
             ),
             maxLines: 3,
             validator: (value) {
-              if (value == null || value.trim().isEmpty) return 'Please enter your comment.';
-              if (value.trim().length < 10) return 'Comment must be at least 10 characters long.';
+              if (value == null || value.trim().isEmpty) {
+                return 'Please enter your comment.';
+              }
+              if (value.trim().length < 10) {
+                return 'Comment must be at least 10 characters long.';
+              }
               return null;
             },
           ),

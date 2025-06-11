@@ -74,12 +74,12 @@ class LibraryScreen extends ConsumerWidget {
                   onTap: () {
                     context.pushNamed(
                       'bookPreview',
-                      pathParameters: {'bookId': book.id},
+                      // ** THE FIX: The parameter name must be 'id' to match the route path. **
+                      pathParameters: {'id': book.id},
                       extra: {
                         'url': book.pdfUrl,
                         'title': book.title,
                         'initialPage': entry.lastReadPage,
-                        // ** CHANGE: Explicitly state this is from the library **
                         'isFromLibrary': true,
                       },
                     );

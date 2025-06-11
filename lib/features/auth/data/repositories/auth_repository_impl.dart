@@ -11,12 +11,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<User?> get authStateChanges => dataSource.authStateChanges;
 
   @override
+  User? get currentUser => dataSource.currentUser;
+
+  @override
   Future<UserCredential> createUserWithEmailAndPassword(String email, String password) {
     return dataSource.createUserWithEmailAndPassword(email, password);
   }
 
   @override
-  Future<UserCredential> signInWithEmailAndPassword(String email, String password) {
+  Future<void> signInWithEmailAndPassword(String email, String password) {
     return dataSource.signInWithEmailAndPassword(email, password);
   }
 

@@ -22,40 +22,36 @@ final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {
 // Provider to add books to the library (the "checkout" action)
 final addBooksToLibraryProvider = FutureProvider.autoDispose.family<void, List<CartItem>>((ref, items) async {
   final libraryRepository = ref.watch(libraryRepositoryProvider);
-  final user = ref.watch(currentUserProvider);
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) throw Exception('User must be logged in.');
   await libraryRepository.addBooksToLibrary(user.uid, items);
 });
 
-// Provider to stream the user's library entries
 final userLibraryProvider = StreamProvider<List<LibraryEntry>>((ref) {
   final libraryRepository = ref.watch(libraryRepositoryProvider);
-  final user = ref.watch(currentUserProvider);
+  final user = ref.watch(authStateChangesProvider).value;
   if (user != null) {
     return libraryRepository.getUserLibrary(user.uid);
   }
   return Stream.value([]);
 });
 
-// Provider to get a single library entry for the reader screen
 final libraryEntryProvider = StreamProvider.autoDispose.family<LibraryEntry?, String>((ref, bookId) {
   final libraryRepository = ref.watch(libraryRepositoryProvider);
-  final user = ref.watch(currentUserProvider);
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) return Stream.value(null);
-  // We want a stream here so the bookmark list in the reader updates in real-time
   return libraryRepository.getUserLibrary(user.uid).map((entries) {
     try {
       return entries.firstWhere((entry) => entry.book.id == bookId);
     } catch (e) {
-      return null; // Return null if not found
+      return null;
     }
   });
 });
 
-// Provider to update reading progress
 final updateProgressProvider = FutureProvider.autoDispose.family<void, ({String bookId, int pageNumber, int totalPages})>((ref, args) async {
   final libraryRepository = ref.watch(libraryRepositoryProvider);
-  final user = ref.watch(currentUserProvider);
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) throw Exception('User not logged in');
 
   await libraryRepository.updateReadingProgress(
@@ -67,10 +63,9 @@ final updateProgressProvider = FutureProvider.autoDispose.family<void, ({String 
   ref.invalidate(userLibraryProvider);
 });
 
-// ** NEW **: Provider to add a bookmark
 final addBookmarkProvider = FutureProvider.autoDispose.family<void, ({String bookId, Bookmark bookmark})>((ref, args) async {
   final libraryRepository = ref.watch(libraryRepositoryProvider);
-  final user = ref.watch(currentUserProvider);
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) throw Exception('User not logged in');
 
   await libraryRepository.addBookmark(
@@ -81,10 +76,9 @@ final addBookmarkProvider = FutureProvider.autoDispose.family<void, ({String boo
   ref.invalidate(libraryEntryProvider(args.bookId));
 });
 
-// ** NEW **: Provider to remove a bookmark
 final removeBookmarkProvider = FutureProvider.autoDispose.family<void, ({String bookId, Bookmark bookmark})>((ref, args) async {
   final libraryRepository = ref.watch(libraryRepositoryProvider);
-  final user = ref.watch(currentUserProvider);
+  final user = ref.watch(authStateChangesProvider).value;
   if (user == null) throw Exception('User not logged in');
 
   await libraryRepository.removeBookmark(

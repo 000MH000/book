@@ -22,11 +22,11 @@ class LookInsideButton extends StatelessWidget {
           ? () {
         context.pushNamed(
           'bookPreview',
-          pathParameters: {'bookId': bookId},
+          // ** THE FIX: The parameter name must be 'id' to match the route path. **
+          pathParameters: {'id': bookId},
           extra: {
             'url': previewUrl,
             'title': title,
-            // ** CHANGE: Explicitly state this is a preview **
             'isFromLibrary': false,
           },
         );

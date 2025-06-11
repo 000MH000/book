@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_app_project_bookstore/features/auth/presentation/providers/auth_providers.dart';
 import 'package:mobile_app_project_bookstore/core/theme/theme_provider.dart';
+import 'package:mobile_app_project_bookstore/features/auth/presentation/providers/auth_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authNotifierProvider);
-    final user = authState.user;
+    final authControllerState = ref.watch(authControllerProvider);
+    final user = ref.watch(authStateChangesProvider).valueOrNull;
     final currentTheme = ref.watch(themeNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile & Settings'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -28,9 +28,8 @@ class ProfileScreen extends ConsumerWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                      // You can add user.photoURL here later if you implement it
                       child: Text(
-                        user.displayName?.substring(0, 1).toUpperCase() ?? user.email?.substring(0, 1).toUpperCase() ?? 'U',
+                        user.displayName?.isNotEmpty == true ? user.displayName!.substring(0, 1).toUpperCase() : (user.email?.substring(0, 1).toUpperCase() ?? 'U'),
                         style: const TextStyle(fontSize: 40),
                       ),
                     ),
@@ -49,10 +48,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           const SizedBox(height: 24),
-          Text(
-            'Settings',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Settings', style: Theme.of(context).textTheme.titleLarge),
           const Divider(),
           ListTile(
             title: const Text('App Theme'),
@@ -63,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
                 ButtonSegment(value: ThemeMode.system, label: Text('System'), icon: Icon(Icons.settings)),
               ],
               selected: {currentTheme},
-              onSelectionChanged: (Set<ThemeMode> newSelection) {
+              onSelectionChanged: (newSelection) {
                 ref.read(themeNotifierProvider.notifier).setTheme(newSelection.first);
               },
             ),
@@ -73,11 +69,13 @@ class ProfileScreen extends ConsumerWidget {
             icon: const Icon(Icons.logout),
             label: const Text('Sign Out'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[400],
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
-            onPressed: () async {
-              await ref.read(authNotifierProvider.notifier).signOutUser();
+            onPressed: authControllerState.isLoading
+                ? null
+                : () {
+              ref.read(authControllerProvider.notifier).signOut();
             },
           ),
         ],
