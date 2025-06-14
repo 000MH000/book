@@ -25,9 +25,18 @@ class CommentList extends ConsumerWidget {
           itemCount: comments.length,
           itemBuilder: (context, index) {
             final comment = comments[index];
+
+            // Safely grab the first letter (or fallback to '?')
+            final avatarLetter = comment.authorName.isNotEmpty
+                ? comment.authorName[0].toUpperCase()
+                : '?';
+
             return ListTile(
-              leading: CircleAvatar(child: Text(comment.authorName.substring(0,1))),
-              title: Text(comment.authorName, style: const TextStyle(fontWeight: FontWeight.bold)),
+              leading: CircleAvatar(child: Text(avatarLetter)),
+              title: Text(
+                comment.authorName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               subtitle: Text(comment.text),
               trailing: Text(
                 DateFormat.yMd().format(comment.createdAt),
@@ -38,7 +47,8 @@ class CommentList extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error loading comments: $err')),
+      error: (err, stack) =>
+          Center(child: Text('Error loading comments: $err')),
     );
   }
 }
