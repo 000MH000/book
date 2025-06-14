@@ -30,9 +30,10 @@ class LibraryEntryModel extends LibraryEntry {
       pdfUrl: bookData['pdfUrl'] ?? '',
       averageRating: (bookData['averageRating'] as num?)?.toDouble() ?? 0.0,
       ratingsCount: bookData['ratingsCount'] ?? 0,
+      price: (bookData['price'] as num?)?.toDouble() ?? 0.0, // ✅ added
+      genres: List<String>.from(bookData['genres'] ?? []),    // ✅ added
     );
 
-    // ** FIX: Safely parse the bookmarks list from Firestore **
     final bookmarksData = data['bookmarks'] as List<dynamic>? ?? [];
     final bookmarks = bookmarksData.map((bookmarkMap) {
       return Bookmark.fromMap(bookmarkMap as Map<String, dynamic>);

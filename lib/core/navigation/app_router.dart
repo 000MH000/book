@@ -75,21 +75,35 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/signin', name: 'signin', builder: (context, state) => const SignInScreen()),
       GoRoute(path: '/signup', name: 'signup', builder: (context, state) => const SignUpScreen()),
       GoRoute(path: '/cart', name: 'cart', parentNavigatorKey: _rootNavigatorKey, builder: (context, state) => const CartScreen()),
-      GoRoute(path: '/book/:id', name: 'bookDetails', parentNavigatorKey: _rootNavigatorKey, builder: (context, state) => BookDetailScreen(bookId: state.pathParameters['id']!)),
       GoRoute(
-        path: '/book/:id/preview', name: 'bookPreview',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (BuildContext context, GoRouterState state) {
-          final bookId = state.pathParameters['id']!;
-          final args = state.extra as Map<String, dynamic>? ?? {};
-          return BookPreviewScreen(
-            bookId: bookId,
-            pdfUrl: args['url'] ?? '',
-            bookTitle: args['title'] ?? 'PDF',
-            initialPage: args['initialPage'] ?? 1,
-            isFromLibrary: args['isFromLibrary'] ?? false,
-          );
-        },
+          name: 'bookDetails',
+          path: '/books/:bookId',
+          builder: (context, state) {
+            final bookId = state.pathParameters['bookId']!;
+            final extras = state.extra as Map<String, dynamic>?;
+            return BookDetailScreen(bookId: bookId, extras: extras);
+          },
+          routes: [
+            GoRoute(
+              path: 'preview',
+              name: 'bookPreview',
+              builder: (context, state) {
+                final bookId = state.pathParameters['bookId']!;
+                final args = state.extra as Map<String, dynamic>?;
+                final url = args?['url'] as String?;
+                final title = args?['title'] as String?;
+                final initialPage = args?['initialPage'] as int? ?? 1;
+                final isFromLibrary = args?['isFromLibrary'] as bool? ?? false;
+                return BookPreviewScreen(
+                  bookId: bookId,
+                  pdfUrl: url ?? '',
+                  bookTitle: title ?? 'PDF',
+                  initialPage: initialPage,
+                  isFromLibrary: isFromLibrary,
+                );
+              },
+            ),
+          ]
       ),
       GoRoute(
         path: '/create-post', name: 'createPost',

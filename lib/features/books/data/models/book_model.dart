@@ -15,6 +15,8 @@ class BookModel extends Book {
     required super.pdfUrl,
     required super.averageRating,
     required super.ratingsCount,
+    required super.price,
+    required super.genres,
   });
 
   factory BookModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -32,6 +34,8 @@ class BookModel extends Book {
       pdfUrl: data['pdfUrl'] ?? '',
       averageRating: (data['averageRating'] as num?)?.toDouble() ?? 0.0,
       ratingsCount: data['ratingsCount'] ?? 0,
+      price: data['price'] ?? 0,
+      genres: List<String>.from(data['genres'] ?? []),
     );
   }
 

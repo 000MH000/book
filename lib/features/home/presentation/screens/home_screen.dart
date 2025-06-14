@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app_project_bookstore/features/books/presentation/providers/book_providers.dart';
+import 'package:mobile_app_project_bookstore/features/search/screens/search_overlay.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,19 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('KetaBook'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (_) => const SearchOverlay(), // Create this next
+              );
+            },
+          ),
+          IconButton(icon: const Icon(Icons.person), onPressed: () {
+            // Placeholder for profile navigation or action
+          }),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             onPressed: () {

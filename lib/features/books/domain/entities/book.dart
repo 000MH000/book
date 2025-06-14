@@ -7,8 +7,10 @@ class Book extends Equatable {
   final String title;
   final List<String> authors;
   final String description;
-  final List<String> categories;
+  final double price;
+  final List<String> genres;
   final List<String> tags;
+  final List<String> categories;
   final int publishedYear;
   final int pageCount;
   final String coverImageUrl;
@@ -29,6 +31,8 @@ class Book extends Equatable {
     required this.pdfUrl,
     required this.averageRating,
     required this.ratingsCount,
+    required this.price,
+    required this.genres,
   });
 
   @override
